@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
-import sys, requests, bs4, re, json, icalendar, datetime
+import sys, requests, bs4, re, json, icalendar, datetime, time
 
 def main():
-    if len(sys.argv) != 4:
-        exit('Wrong arguments, expected: username password output.ics')
+    if not 4 <= len(sys.argv) <= 5:
+        exit('Wrong arguments, expected: username password output.ics [loop]')
 
     session = requests.Session()
     session.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/13.0.782.112 Safari/535.1',
@@ -138,4 +138,13 @@ def write_calendar(calendar, output_path):
         output.write(calendar.to_ical())
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) == 5 and sys.argv[4] == "loop":
+        while True:
+            main()
+            now = datetime.datetime.now()
+            tomorrow = now.replace(hour=4, minute=0, second=0, microsecond=0) + datetime.timedelta(days=1)
+            delta = tomorrow - now
+            print(f"sleeping for {delta} until {tomorrow}")
+            time.sleep(delta.seconds)
+    else:
+        main()
